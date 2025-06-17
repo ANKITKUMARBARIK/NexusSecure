@@ -4,6 +4,7 @@ import {
     updateAccountDetails,
     updateUserAvatar,
     updateUserCoverImage,
+    getCurrentUser,
 } from "../controllers/user.controller.js";
 import validate from "../middlewares/validate.middleware.js";
 import {
@@ -42,5 +43,7 @@ router
         upload.single("coverImage"),
         updateUserCoverImage
     );
+
+router.route("/current-user").get(verifyAuthentication, getCurrentUser);
 
 export default router;
