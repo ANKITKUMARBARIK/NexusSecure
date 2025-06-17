@@ -475,3 +475,31 @@ export const forgetUserPassword = asyncHandler(async (req, res) => {
             )
         );
 });
+
+export const resetUserPassword = asyncHandler(async (req, res) => {
+    const { token } = req.params;
+    const { newPassword, confirmPassword } = req.body;
+
+    if (!token?.trim()) throw new ApiError(400, "token is required");
+
+    const existedUser = await User.findOne({
+        forgetPasswordToken: token,
+        forgetPasswordExpiry: { $gt: new Date() },
+    });
+    if (!existedUser) throw new ApiError(404, "invalid or expired token");
+
+    existedUser.forgetPasswordToken = undefined;
+    existedUser.forgetPasswordExpiry = undefined;
+    existedUser.password = confirmPassword;
+    await existedUser.save();
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                { email: existedUser.email },
+                "password reset successfully. You can now log in with your new password."
+            )
+        );
+});

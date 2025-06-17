@@ -7,6 +7,7 @@ import {
     googleOAuthLogin,
     githubOAuthLogin,
     forgetUserPassword,
+    resetUserPassword,
 } from "../controllers/auth.controller.js";
 import validate from "../middlewares/validate.middleware.js";
 import {
@@ -15,6 +16,7 @@ import {
     resendOtpSignupSchema,
     loginUserSchema,
     forgetUserPasswordSchema,
+    resetUserPasswordSchema,
 } from "../validations/auth.validation.js";
 import upload from "../middlewares/multer.middleware.js";
 
@@ -46,5 +48,9 @@ router.route("/github").post(githubOAuthLogin);
 router
     .route("/forget-password")
     .post(validate(forgetUserPasswordSchema), forgetUserPassword);
+
+router
+    .route("/reset-password/:token")
+    .post(validate(resetUserPasswordSchema), resetUserPassword);
 
 export default router;
