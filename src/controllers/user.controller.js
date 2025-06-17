@@ -2,6 +2,7 @@ import asyncHandler from "../utils/asyncHandler.util.js";
 import ApiError from "../utils/ApiError.util.js";
 import ApiResponse from "../utils/ApiResponse.util.js";
 import { uploadOnCloudinary } from "../services/cloudinary.service.js";
+import ROLES from "../config/role.js";
 import User from "../models/user.model.js";
 
 export const changeCurrentPassword = asyncHandler(async (req, res) => {
@@ -96,5 +97,36 @@ export const getCurrentUser = asyncHandler(async (req, res) => {
         .status(200)
         .json(
             new ApiResponse(200, req.user, "current user fetched successfully")
+        );
+});
+
+export const updateUserRole = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!id || !role?.trim())
+        throw new ApiError(400, "id or role are required");
+
+    if (!Object.values(ROLES).includes(role))
+        throw new ApiError(400, "invalid role");
+
+    if (req.user?._id === id)
+        throw new ApiError(403, "you cannot update your own role");
+
+    const existedUser = await User.findByIdAndUpdate(
+        id,
+        { $set: { role } },
+        { new: true }
+    ).select("-password -refreshToken");
+    if (!existedUser) throw new ApiError(404, "user not found");
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                existedUser,
+                `user role updated to ${existedUser.role}`
+            )
         );
 });

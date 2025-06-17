@@ -5,6 +5,7 @@ import {
     updateUserAvatar,
     updateUserCoverImage,
     getCurrentUser,
+    updateUserRole,
 } from "../controllers/user.controller.js";
 import validate from "../middlewares/validate.middleware.js";
 import {
@@ -13,6 +14,8 @@ import {
 } from "../validations/user.validation.js";
 import verifyAuthentication from "../middlewares/authentication.middleware.js";
 import upload from "../middlewares/multer.middleware.js";
+import verifyAuthorization from "../middlewares/authorization.middleware.js";
+import ROLES from "../config/role.js";
 
 const router = Router();
 
@@ -45,5 +48,13 @@ router
     );
 
 router.route("/current-user").get(verifyAuthentication, getCurrentUser);
+
+router
+    .route("/make-admin/:id")
+    .patch(
+        verifyAuthentication,
+        verifyAuthorization(ROLES.ADMIN),
+        updateUserRole
+    );
 
 export default router;
