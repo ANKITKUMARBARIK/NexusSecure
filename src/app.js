@@ -16,9 +16,11 @@ app.use(cookieParser());
 
 // routes import
 import authRouter from "./routes/auth.route.js";
+import userRouter from "./routes/user.route.js";
 
 // routes define
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/user", userRouter);
 
 // global error handler - one last middleware
 app.use(errorMiddleware);
