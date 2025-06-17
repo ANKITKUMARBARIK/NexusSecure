@@ -13,6 +13,8 @@ import welcomeSignupMail from "../services/welcomeSignupMail.service.js";
 import { OAuth2Client } from "google-auth-library";
 import crypto from "crypto";
 import axios from "axios";
+import generateForgetPasswordToken from "../utils/generateFrogetPasswordToken.util.js";
+import tokenVerifyMail from "../services/tokenVerifyMail.service.js";
 import User from "../models/user.model.js";
 
 export const registerUser = asyncHandler(async (req, res) => {
@@ -443,3 +445,33 @@ NOTE :-
 
     ->  ✅ You'll get a response.
 */
+
+export const forgetUserPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    const token = generateForgetPasswordToken();
+    const expiry = Date.now() + 3600000;
+
+    const existedUser = await User.findOneAndUpdate(
+        { email },
+        { $set: { forgetPasswordToken: token, forgetPasswordExpiry: expiry } },
+        { new: true }
+    );
+    if (!existedUser) throw new ApiError(404, "email does not exists");
+
+    await tokenVerifyMail(
+        existedUser.fullName,
+        existedUser.email,
+        existedUser.forgetPasswordToken
+    );
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                { email: existedUser.email },
+                "token generated - check your email to reset your password"
+            )
+        );
+});
