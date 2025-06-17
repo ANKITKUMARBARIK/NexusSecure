@@ -22,3 +22,21 @@ export const changeCurrentPasswordSchema = Joi.object({
             "string.empty": `"confirmPassword" is required`,
         }),
 });
+
+export const updateAccountDetailsSchema = Joi.object({
+    fullName: Joi.string().required().messages({
+        "string.empty": `"fullName" is required`,
+    }),
+    username: Joi.string().alphanum().min(3).max(30).required().messages({
+        "string.empty": `"username" is required`,
+        "string.alphanum": `"username" must be alphanumeric`,
+    }),
+    email: Joi.string().email().required().messages({
+        "string.empty": `"email" is required`,
+        "string.email": `"email" must be a valid email`,
+    }),
+    bio: Joi.string().allow("").optional(),
+    timezone: Joi.string().required().messages({
+        "string.empty": `"timezone" is required`,
+    }),
+});

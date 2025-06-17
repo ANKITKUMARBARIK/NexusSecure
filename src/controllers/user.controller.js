@@ -19,3 +19,25 @@ export const changeCurrentPassword = asyncHandler(async (req, res) => {
         .status(200)
         .json(new ApiResponse(200, {}, "password changed successfully"));
 });
+
+export const updateAccountDetails = asyncHandler(async (req, res) => {
+    const { fullName, username, email, bio, timezone } = req.body;
+
+    const existedUser = await User.findByIdAndUpdate(
+        req.user?._id,
+        { $set: { fullName, username, email, bio, timezone } },
+        { new: true }
+    ).select("-password -refreshToken");
+    if (!existedUser)
+        throw new ApiError(401, "something wrong while updating account");
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                existedUser,
+                "account details updated successfully"
+            )
+        );
+});
