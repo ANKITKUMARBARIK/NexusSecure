@@ -46,3 +46,17 @@ export const getAllProducts = asyncHandler(async (req, res) => {
             )
         );
 });
+
+export const getProductById = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const product = await Product.findById(id)
+        .populate("createdBy", "username email")
+        .select("-__v");
+
+    if (!product) throw new ApiError(404, "Product not found");
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, product, "Product fetched successfully"));
+});
