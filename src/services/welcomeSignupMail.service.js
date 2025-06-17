@@ -1,15 +1,15 @@
 import transporter from "../config/mailer.config.js";
 import { promises as fs } from "fs";
 
-const verifySignupMail = async (fullName, email, otpSignup) => {
+const welcomeSignupMail = async (fullName, email) => {
     try {
         const htmlContent = await fs.readFile(
-            "./src/mails/templates/verifySignupMail.html",
+            "./src/mails/templates/welcomeSignupMail.html",
             "utf-8"
         );
         const finalHtml = htmlContent
             .replace("{{fullName}}", fullName)
-            .replace("{{otpSignup}}", otpSignup);
+            .replace("{{dashboardLink}}", "http://localhost:8000/");
 
         const mailOptions = {
             from: {
@@ -17,9 +17,20 @@ const verifySignupMail = async (fullName, email, otpSignup) => {
                 address: process.env.APP_GMAIL,
             },
             to: { name: fullName, address: email },
-            subject: "OTP Verification",
+            subject: `Welcome ${fullName}`,
             html: finalHtml,
             text: finalHtml,
+            attachments: [
+                {
+                    filename: "default.png",
+                    path: "./public/images/default.png",
+                },
+                {
+                    filename: "default.png",
+                    path: "./public/images/default.png",
+                    cid: "img1-contentid",
+                },
+            ],
         };
 
         const info = await transporter.sendMail(mailOptions);
@@ -29,4 +40,4 @@ const verifySignupMail = async (fullName, email, otpSignup) => {
     }
 };
 
-export default verifySignupMail;
+export default welcomeSignupMail;
