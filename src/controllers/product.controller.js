@@ -23,3 +23,26 @@ export const createProduct = asyncHandler(async (req, res) => {
         .status(201)
         .json(new ApiResponse(201, product, "product created successfully"));
 });
+
+export const getAllProducts = asyncHandler(async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const products = await Product.find({})
+        .skip(skip)
+        .limit(limit)
+        .populate("createdBy", "username email")
+        .select("-__v")
+        .sort("-createdAt");
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                { page, limit, products },
+                "products fetched successfully with pagination"
+            )
+        );
+});
