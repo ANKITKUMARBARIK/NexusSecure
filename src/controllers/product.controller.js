@@ -60,3 +60,19 @@ export const getProductById = asyncHandler(async (req, res) => {
         .status(200)
         .json(new ApiResponse(200, product, "Product fetched successfully"));
 });
+
+export const updateProductById = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    const product = await Product.findByIdAndUpdate({ _id: id }, req.body, {
+        new: true,
+        runValidators: true,
+    })
+        .populate("createdBy", "username email")
+        .select("-__v");
+    if (!product) throw new ApiError(404, "product not found");
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, product, "product updated successfully"));
+});
