@@ -7,7 +7,11 @@ import {
 } from "../services/cloudinary.service.js";
 import generateSignupOtp from "../utils/generateSignupOtp.util.js";
 import verifySignupMail from "../services/verifySignupMail.service.js";
-import { sanitizeUser, setAuthCookies } from "../utils/auth.util.js";
+import {
+    sanitizeUser,
+    setAuthCookies,
+    clearAuthCookies,
+} from "../utils/auth.util.js";
 import generateAccessAndRefreshToken from "../services/token.service.js";
 import welcomeSignupMail from "../services/welcomeSignupMail.service.js";
 import { OAuth2Client } from "google-auth-library";
@@ -536,4 +540,19 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
                 "access token refreshed successfully"
             )
         );
+});
+
+export const logoutUser = asyncHandler(async (req, res) => {
+    const existedUser = await User.findByIdAndUpdate(
+        req.user._id,
+        { $unset: { refreshToken: 1 } },
+        { new: true }
+    );
+    if (!existedUser) throw new ApiError(404, "user not found");
+
+    clearAuthCookies(res);
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, {}, "user logged out successfully"));
 });
