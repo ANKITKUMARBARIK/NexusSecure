@@ -4,6 +4,7 @@ import {
     getAllProducts,
     getProductById,
     updateProductById,
+    deleteProductById,
 } from "../controllers/product.controller.js";
 import verifyAuthentication from "../middlewares/authentication.middleware.js";
 import validate from "../middlewares/validate.middleware.js";
@@ -28,5 +29,9 @@ router
         verifyAuthentication,
         updateProductById
     );
+
+router
+    .route("/delete-user-product/:id")
+    .delete(verifyAuthentication, deleteProductById);
 
 export default router;
