@@ -4,6 +4,7 @@ import morgan from "morgan";
 import { fileSize } from "./constants.js";
 import cookieParser from "cookie-parser";
 import errorMiddleware from "./middlewares/error.middleware.js";
+import { globalLimiter } from "./middlewares/rateLimiter.middleware.js";
 
 const app = express();
 
@@ -13,6 +14,9 @@ app.use(express.urlencoded({ extended: true, limit: fileSize }));
 app.use(express.json({ limit: fileSize }));
 app.use(express.static("public"));
 app.use(cookieParser());
+
+// Global rate limiter - must come BEFORE all route definitions
+app.use(globalLimiter);
 
 // routes import
 import authRouter from "./routes/auth.route.js";

@@ -22,6 +22,11 @@ import {
 } from "../validations/auth.validation.js";
 import upload from "../middlewares/multer.middleware.js";
 import verifyAuthentication from "../middlewares/authentication.middleware.js";
+import {
+    loginLimiter,
+    otpLimiter,
+    forgotPasswordLimiter,
+} from "../middlewares/rateLimiter.middleware.js";
 
 const router = Router();
 
@@ -36,13 +41,13 @@ router.route("/register").post(
 
 router
     .route("/verify-signup")
-    .post(validate(verifyOtpSignupSchema), verifyOtpSignup);
+    .post(otpLimiter, validate(verifyOtpSignupSchema), verifyOtpSignup);
 
 router
     .route("/resend-signup")
-    .post(validate(resendOtpSignupSchema), resendOtpSignup);
+    .post(otpLimiter, validate(resendOtpSignupSchema), resendOtpSignup);
 
-router.route("/login").post(validate(loginUserSchema), loginUser);
+router.route("/login").post(loginLimiter, validate(loginUserSchema), loginUser);
 
 router.route("/google").post(googleOAuthLogin);
 
@@ -50,7 +55,11 @@ router.route("/github").post(githubOAuthLogin);
 
 router
     .route("/forget-password")
-    .post(validate(forgetUserPasswordSchema), forgetUserPassword);
+    .post(
+        forgotPasswordLimiter,
+        validate(forgetUserPasswordSchema),
+        forgetUserPassword
+    );
 
 router
     .route("/reset-password/:token")
